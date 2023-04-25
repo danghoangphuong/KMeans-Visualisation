@@ -65,6 +65,34 @@ def calc_distance(p1, p2):
 		distance += (p1[i] - p2[i])**2
 	return math.sqrt(distance)
 
+def picture_compress():
+	img = plt.imread("a.jpg") # shape -> (656, 561, 3) 
+
+	height = img.shape [0] #rows
+	width = img.shape[1] #columns
+
+	img = img.reshape(height*width,3) # shape -> (368016, 3)
+
+	kmeans = KMeans(n_clusters=3).fit(img)
+	labels = kmeans.predict(img)
+	clusters = kmeans.cluster_centers_
+
+	new_img = np.zeros_like(img) # shape -> (368016, 3)
+
+	for i in range(len(new_img)):
+		new_img[i] = clusters[labels[i]]
+
+	new_img = new_img.reshape(height,width,3) # shape -> (656, 561, 3)
+	plt.imshow(new_img)
+	new_pic = plt.savefig("img.jpg")	
+	return new_pic
+
+def update_k(K):
+	k_newest = []
+	k_newest.append(K)
+	print(k_newest)
+	return k_newest[-1]
+
 def main():
 	pygame.init() 
 	screen, imp = customise()
@@ -76,10 +104,10 @@ def main():
 	
 	notifications = []
 	
-	#initial value of K
-	K = 0
-	
+	#initial value of K and error
+	K = update_k(0)
 	error = 0
+	
 	# data point position
 	data_points = []
 
@@ -98,7 +126,12 @@ def main():
 	GRAPE = (100,25,125)
 	GRASS = (55,155,65)
 	CLUSTER_COLORS = [RED,GREEN,BLUE,YELLOW,PURPLE,SKY,ORANGE,GRAPE,GRASS]
-		
+	
+	display_img = 0
+	new_img = picture_compress()
+	if K != 0:
+		print("xxxx")
+
 	while running:
 		clock.tick(60)	
 		screen.fill((214,214,214))	
@@ -137,7 +170,7 @@ def main():
 		btn_algorithm.draw_text_box(screen,Mouse_x, Mouse_y)
 		
 		#reset btn
-		btn_reset = Button('Reset', (875,450), "Reset program")
+		btn_reset = Button('Reset', (870,630), "Reset program")
 		btn_reset.draw_text_box(screen,Mouse_x, Mouse_y)
 
 		#Random btn
@@ -145,8 +178,8 @@ def main():
 		btn_random.draw_text_box(screen,Mouse_x, Mouse_y)
 
 		# Picture compressed btn
-		# btn_compressed = Button('Picture compressed', (805,630), "Compress picture")
-		# btn_compressed.draw_text_box(screen,Mouse_x, Mouse_y)
+		btn_compressed = Button('Picture compressed', (795,450), "Compress picture")
+		btn_compressed.draw_text_box(screen,Mouse_x, Mouse_y)
 		
 		for event in pygame.event.get():
 			if event.type == pygame.MOUSEBUTTONDOWN: # check click
@@ -163,11 +196,12 @@ def main():
 							K += 1 	
 							noti = "K value has been increased !"
 							notifications.append(noti)
-					
+							update_k(K)
+						
 					# K- button
 					if btn_minus.is_mouse_on_btn(Mouse_x,Mouse_y):
 						if K > 0:
-							K -= 1 		
+							K -= 1 	
 							noti = "K value has been decreased !"
 							notifications.append(noti)
 
@@ -186,17 +220,21 @@ def main():
 						notifications.append(noti)
 						labels = []
 						# calculate distance from point to cluster to assign label
-						for p in data_points:
-							distances = [] #value when calc distance from each p to c
-							for c in clusters:
-								distance = calc_distance(p, c) #calculate distance from each point to clusters 
-								distances.append(distance)
-								
-							min_distance = min(distances) #find min distance
-							#find index to assign label
-							idx_min = distances.index(min_distance)# -->0/1/...
-							labels.append(idx_min) #assign label
-
+						try:
+							for p in data_points:
+								distances = [] #value when calc distance from each p to c
+								for c in clusters:
+									distance = calc_distance(p, c) #calculate distance from each point to clusters 
+									distances.append(distance)
+									
+								min_distance = min(distances) #find min distance
+								#find index to assign label
+								idx_min = distances.index(min_distance)# -->0/1/...
+								labels.append(idx_min) #assign label
+						except:
+							noti = "Check cluster first !"
+							notifications.append(noti)
+						
 						# change cluster centroid position 
 						for i in range(K):
 							sum_x = 0 
@@ -229,36 +267,20 @@ def main():
 					if btn_reset.is_mouse_on_btn(Mouse_x,Mouse_y):
 						noti = "System reset !"
 						notifications.append(noti)
+						display_img = 0
 						clusters = []
 						K = 0 
 						data_points = []
 						labels = []
 
-					# #picture compress button
-					# if btn_compressed.is_mouse_on_btn(Mouse_x, Mouse_y):
-					# 	noti = "Processing..."
-					# 	notifications.append(noti)
-						
-					# 	img = plt.imread('a.jpg')
+					#picture compress button
+					if btn_compressed.is_mouse_on_btn(Mouse_x, Mouse_y):
+						noti = "Processing..."
+						notifications.append(noti)
+						display_img = 1
+						ori_img = pygame.image.load("a.jpg")
+						new_img = pygame.image.load("img.jpg")
 
-					# 	height = img.shape[0]
-					# 	width = img.shape[1]
-
-					# 	img = img.reshape(height*width, 3)
-
-					# 	kmeans = KMeans(n_clusters=1).fit(img)
-					# 	labels = kmeans.predict(img)
-					# 	clus = kmeans.cluster_centers_
-
-					# 	img2 = np.zeros_like(img)
-
-					# 	for i in range(len(img2)):
-					# 		img2[i] = clus[labels[i]]
-
-					# 	img2 = img2.reshape(height,width, 3)
-
-					# 	plt.imshow(img2)
-			
 			if event.type == pygame.QUIT:
 				running = False
 
@@ -289,7 +311,12 @@ def main():
 		
 		text_error = not_btn_font.render('ERROR = ' + str(int(error)), True, (0,0,0))
 		screen.blit(text_error, (830,155))
-		plt.show()
+		
+		# display picture 
+		if display_img == 1:
+			screen.blit(new_img, (550, 50))
+			screen.blit(ori_img, (50, 50))
+
 		pygame.display.flip()	
 
 	pygame.quit()
