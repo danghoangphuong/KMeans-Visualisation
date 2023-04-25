@@ -154,7 +154,7 @@ def main():
 					# create data point
 					if is_mouse_on_panel(Mouse_x, Mouse_y):
 						labels = []
-						point = (Mouse_x-50, Mouse_y-50)
+						point = [Mouse_x-50, Mouse_y-50]
 						data_points.append(point)
 
 					# K+ button
@@ -177,7 +177,7 @@ def main():
 						noti = "Create cluster !"
 						notifications.append(noti)
 						for i in range(K):
-							cluster_pos = (randint(0,700), randint(0,500)) #random pos
+							cluster_pos = [randint(0,700), randint(0,500)] #random pos
 							clusters.append(cluster_pos) #create list of position
 					
 					# run button 
@@ -211,7 +211,7 @@ def main():
 								#new pos = average pos
 								new_x = sum_x/point_count 
 								new_y = sum_y/point_count
-								clusters[i] = (new_x, new_y) #update position
+								clusters[i] = [new_x, new_y] #update position
 
 					# algorithm button 
 					if btn_algorithm.is_mouse_on_btn(Mouse_x, Mouse_y):
