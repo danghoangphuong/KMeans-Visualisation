@@ -51,7 +51,6 @@ def draw_cluster(cluster_pos, screen,CLUSTER_COLORS,k):
 	pygame.draw.circle(screen, CLUSTER_COLORS, cluster_pos, 12)
 
 def customise():
-	pygame_icon = pygame.image.load('hhhh.png')
 	pygame.display.set_icon(pygame_icon)
 	pygame.display.set_caption("Kmeans visualisation")
 	screen = pygame.display.set_mode((1200,700))
