@@ -8,4 +8,4 @@ Step 4: click on "Run" button. This button was written without using external li
 :rotating_light: I used Scikit-learn library with "Algorithm" button to compare the result to "Run" button\
 :fire: Use "Reset" button if you want to clear screen\
 :rotating_light: Click on "Compress picture" then 2 pictures will appear. On your LEFT, it is the original picture, besides, there will be a compressed picture. I used K=3 when compressed this picture, you can adjust the number of K in code :boom:\
-:boom: ENJOY YOURSELF!!:clown_face:\
+:boom: ENJOY YOURSELF!!:clown_face:
